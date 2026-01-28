@@ -2,7 +2,7 @@
 
 A client-side web application that converts 8-bit integers into visual binary bit patterns.
 
-![Verification](C:/Users/charlotte/.gemini/antigravity/brain/b2f2e164-b7eb-4dba-bf93-26c0ff9a8f8c/layout_verification_1769574446820.png)
+![Verification](./screenshot.png)
 
 ## Features
 - **8x8 Grid**: Visualize 8 rows of 8-bit integers.
