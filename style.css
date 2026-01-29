@@ -295,16 +295,29 @@ footer {
 }
 
 .footer-logo {
+  display: none; /* Deprecated */
+}
+
+.footer-icon {
   width: 20px;
-  height: auto;
+  height: 20px;
+  object-fit: contain;
+}
+
+.footer-icon.avatar {
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .footer-link {
   color: #60a5fa;
   /* Vivid Blue-400 */
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .footer-link:hover {
