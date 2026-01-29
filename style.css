@@ -8,6 +8,7 @@
   --bit-border: rgba(255, 255, 255, 0.1);
   --input-bg: rgba(15, 23, 42, 0.6);
   --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --panel-bg: rgba(15, 23, 42, 0.4);
 }
 
 body {
@@ -30,22 +31,28 @@ body {
   background: var(--card-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  padding: 2.5rem;
+  padding: 2rem;
   border-radius: 24px;
   border: var(--glass-border);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  max-width: 900px;
-  width: 90%;
+  max-width: 1000px;
+  width: 95%;
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
 header {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 header h1 {
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: 2rem;
   margin: 0 0 0.5rem 0;
   background: linear-gradient(to right, #fff, #94a3b8);
   -webkit-background-clip: text;
@@ -55,70 +62,156 @@ header h1 {
 header p {
   color: #94a3b8;
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-.converter-grid {
+/* Main Layout */
+.main-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  flex: 1;
+  min-height: 0;
+  align-items: start;
+}
+
+/* Input Panel */
+.input-panel {
+  background: var(--panel-bg);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: var(--glass-border);
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  /* Aligns with bit gap */
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  justify-content: space-between;
-  height: 36px;
-  /* Force row height to match bit height for alignment calculation? No, input will overflow */
-}
-
-.decimal-input {
-  background: var(--input-bg);
-  border: var(--glass-border);
-  color: white;
-  padding: 0.4rem 1rem;
-  /* Reduced padding */
-  border-radius: 12px;
-  font-family: 'Space Grotesk', monospace;
-  font-size: 1.1rem;
-  /* Slightly smaller font */
-  width: 100px;
-  text-align: right;
-  transition: all 0.2s ease;
-  outline: none;
-  height: 36px;
-  /* Match bit height */
+  overflow-y: auto;
+  height: 100%;
   box-sizing: border-box;
 }
 
-.decimal-input:focus {
-  border-color: rgba(239, 68, 68, 0.5);
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0px;
+  height: 40px;
+  flex-shrink: 0;
 }
 
-/* Hide spin buttons */
-.decimal-input::-webkit-outer-spin-button,
-.decimal-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+.panel-header h2 {
+  font-size: 1.2rem;
   margin: 0;
+  color: #e2e8f0;
+}
+
+.inputs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Increased to 8px for square grid match */
+  margin-top: 1rem;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0 0.75rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  height: 32px;
+  /* Matches bit height for square grid */
+  box-sizing: border-box;
+}
+
+.input-group:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.input-group:focus-within {
+  border-color: var(--accent-color);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.input-group label {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  /* Brighter label */
+  font-weight: 500;
+}
+
+.decimal-input {
+  background: transparent;
+  border: none;
+  color: white;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1rem;
+  width: 60px;
+  text-align: right;
+  outline: none;
+  padding: 0;
+}
+
+.decimal-input:focus {
+  color: var(--accent-color);
+  /* Kept text color accent */
+}
+
+/* Display Panel */
+.display-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.patterns-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Strict match to inputs-list (8px) */
+  margin-top: 1rem;
+  /* Match input-list margin */
+}
+
+.bit-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  border-radius: 0;
+  transition: background 0.2s;
+  height: 32px;
+  /* Match input-group height */
+}
+
+.bit-row:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .bits-container {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  /* 8px horizontal gap for perfect square */
 }
 
 .bit {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
   background: var(--bit-off);
   border: var(--glass-border);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .bit::after {
@@ -133,74 +226,161 @@ header p {
 
 .bit.active {
   background: var(--accent-color);
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
   border-color: rgba(239, 68, 68, 0.5);
   transform: scale(1.05);
 }
 
-@media (max-width: 600px) {
-  .row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 1rem;
-    border-radius: 16px;
-  }
+/* Mobile Toggle - Top Left */
+.mobile-toggle {
+  display: none;
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--card-bg);
+  border: var(--glass-border);
+  color: white;
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
 
-  .decimal-input {
-    width: 100%;
-    text-align: center;
-  }
+.mobile-toggle:active {
+  transform: scale(0.95);
+  background: var(--accent-color);
+}
 
-  .bits-container {
-    justify-content: center;
-  }
-
-  .bit {
-    height: 28px;
-  }
+/* Hide spin buttons */
+.decimal-input::-webkit-outer-spin-button,
+.decimal-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Footer Styles */
 footer {
-  margin-top: 2rem;
-  border-top: var(--glass-border);
-  padding-top: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
   display: flex;
   justify-content: center;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
 }
 
 .footer-content {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #94a3b8;
-  font-size: 0.95rem;
+  color: #cbd5e1;
+  /* Brighter footer text */
+  font-size: 0.85rem;
   font-weight: 500;
-  opacity: 0.8;
-  transition: opacity 0.2s ease;
-}
-
-.footer-content:hover {
   opacity: 1;
+  /* Removed opacity for clarity */
 }
 
 .footer-logo {
-  width: 24px;
+  width: 20px;
   height: auto;
-  border-radius: 0;
-  box-shadow: none;
 }
 
 .footer-link {
-  color: #3b82f6;
+  color: #60a5fa;
+  /* Vivid Blue-400 */
   text-decoration: none;
-  font-weight: 700;
   transition: color 0.2s ease;
+  font-weight: 600;
 }
 
 .footer-link:hover {
-  color: #60a5fa;
+  color: #93c5fd;
+  /* Light Blue-300 */
   text-decoration: underline;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.mobile-only {
+  display: none;
+}
+
+/* Responsive & Mobile */
+@media (max-width: 700px) {
+  .app-container {
+    height: 100vh;
+    width: 100%;
+    border-radius: 0;
+    padding: 1rem;
+    padding-top: 5rem;
+  }
+
+  .main-layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+    overflow-y: auto;
+    display: block;
+  }
+
+  .patterns-list {
+    margin-top: 0;
+  }
+
+  /* Input panel becomes a drawer or overlay on mobile */
+  .input-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100%;
+    z-index: 200;
+    background: #0f172a;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 10px 0 50px rgba(0, 0, 0, 0.5);
+    padding-top: 5rem;
+    /* Space for hidden toggle area so controls are lower? No, toggle is z-index 100, drawer 200. Drawer covers toggle? */
+    /* Let's keep toggle visible or allow closing via X */
+  }
+
+  .input-panel.active {
+    transform: translateX(0);
+  }
+
+  .display-panel {
+    background: transparent;
+    padding: 0;
+    height: auto;
+  }
+
+  .mobile-toggle {
+    display: flex;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  /* On mobile, we hide the desktop "Patterns" header, 
+     but the inputs panel has its own header. */
+  .desktop-hidden {
+    display: none;
+  }
+
+  .bits-container {
+    justify-content: center;
+  }
 }
