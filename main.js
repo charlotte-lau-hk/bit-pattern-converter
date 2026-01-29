@@ -52,6 +52,30 @@ document.addEventListener('DOMContentLoaded', () => {
         updateBitDisplay(index, input.value || 0);
     });
 
+    // --- Interactive Bits Logic ---
+
+    bitRows.forEach((row, rowIndex) => {
+        const bits = row.querySelectorAll('.bit');
+        bits.forEach((bit, bitIndex) => {
+            bit.addEventListener('click', () => {
+                const input = inputs[rowIndex];
+                let currentValue = parseInt(input.value) || 0;
+
+                // Calculate weight of the clicked bit
+                // Bits are index 0 (MSB, 128) to 7 (LSB, 1)
+                const weight = Math.pow(2, 7 - bitIndex);
+
+                // XOR to toggle the bit in the integer
+                const newValue = currentValue ^ weight;
+
+                // Update State
+                input.value = newValue;
+                updateBitDisplay(rowIndex, newValue);
+                updateHash();
+            });
+        });
+    });
+
 
     // --- URL Hash State Management ---
 

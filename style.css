@@ -212,6 +212,14 @@ header p {
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+  cursor: pointer;
+  /* Interactive */
+}
+
+.bit:hover {
+  background: rgba(255, 255, 255, 0.2);
+  /* Hover affordance */
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .bit::after {
