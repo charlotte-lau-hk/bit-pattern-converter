@@ -2,6 +2,8 @@
 
 A client-side web application that converts 8-bit integers into visual binary bit patterns.
 
+[**Live Demo**](https://charlotte-lau-hk.github.io/bit-pattern-converter/)
+
 ![Verification](./screenshot.png)
 
 ## Features
