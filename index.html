@@ -16,12 +16,27 @@
     <header>
       <h1>Bit Pattern Converter</h1>
       <p>Visualize 8-bit integers as binary patterns</p>
+      <div class="credits">
+        <span>By</span>
+        <a href="https://github.com/charlotte-lau-hk/" target="_blank" class="credit-link">
+          <img src="https://avatars.githubusercontent.com/u/98373438?v=4&s=120" alt="Charlotte Lau"
+            class="credit-icon avatar">
+          Charlotte Lau
+        </a>
+        <span>&</span>
+        <a href="https://antigravity.google" target="_blank" class="credit-link">
+          <img src="https://antigravity.google/assets/image/antigravity-logo.png" alt="Antigravity" class="credit-icon">
+          Antigravity
+        </a>
+      </div>
     </header>
 
     <!-- Mobile Toggle Button -->
     <button id="toggle-inputs" class="mobile-toggle" aria-label="Toggle inputs">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 20v-6M6 20V10M18 20V4" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
       </svg>
     </button>
 
@@ -173,24 +188,12 @@
             </div>
           </div>
         </div>
+        <div class="display-controls">
+          <button id="toggle-view" class="secondary-btn">Show Bits</button>
+        </div>
       </main>
     </div>
 
-    <footer>
-      <div class="footer-content">
-        <span>Created by</span>
-        <a href="https://github.com/charlotte-lau-hk/" target="_blank" class="footer-link">
-          <img src="https://avatars.githubusercontent.com/u/98373438?v=4&s=120" alt="Charlotte Lau"
-            class="footer-icon avatar">
-          Charlotte Lau
-        </a>
-        <span>and</span>
-        <a href="https://antigravity.google" target="_blank" class="footer-link">
-          <img src="https://antigravity.google/assets/image/antigravity-logo.png" alt="Antigravity" class="footer-icon">
-          Antigravity
-        </a>
-      </div>
-    </footer>
   </div>
   <script src="./main.js"></script>
 </body>

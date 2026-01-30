@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const inputs = document.querySelectorAll('.decimal-input');
     const bitRows = document.querySelectorAll('.bit-row');
+    const toggleViewBtn = document.getElementById('toggle-view');
+
+    let showBits = false;
 
     // --- Core Logic: Map Input Index to Bit Row ---
 
@@ -20,11 +23,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const bits = targetRow.querySelectorAll('.bit');
         bits.forEach((bit, bitIndex) => {
-            if (binaryString[bitIndex] === '1') {
+            const bitValue = binaryString[bitIndex];
+            
+            // Update Visual Pattern
+            if (bitValue === '1') {
                 bit.classList.add('active');
             } else {
                 bit.classList.remove('active');
             }
+
+            // Update Text Content (0 or 1)
+            if (showBits) {
+                bit.textContent = bitValue;
+            } else {
+                bit.textContent = '';
+            }
+        });
+    };
+
+    const refreshAllDisplays = () => {
+        inputs.forEach((input, index) => {
+            updateBitDisplay(index, input.value || 0);
         });
     };
 
@@ -75,6 +94,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+
+
+    // --- Toggle View Logic ---
+    if (toggleViewBtn) {
+        toggleViewBtn.addEventListener('click', () => {
+            showBits = !showBits;
+            toggleViewBtn.classList.toggle('active', showBits);
+            toggleViewBtn.textContent = showBits ? 'Show Pattern' : 'Show Bits';
+            refreshAllDisplays();
+        });
+    }
 
 
     // --- URL Hash State Management ---
