@@ -9,22 +9,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewCanvas = document.getElementById('preview-canvas');
     const pctx = previewCanvas ? previewCanvas.getContext('2d') : null;
 
-    const drawPreview = () => {
-        if (!pctx) return;
-        pctx.fillStyle = '#0f172a';
-        pctx.fillRect(0, 0, 64, 64);
-        inputs.forEach((input, row) => {
-            let v = parseInt(input.value);
-            if (isNaN(v) || v < 0) v = 0;
-            if (v > 255) v = 255;
-            const binary = v.toString(2).padStart(8, '0');
+    // Paint an 8x8 sprite (from 8 row values) onto a 64x64 canvas context
+    const paintSprite = (ctx, values) => {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 64, 64);
+        values.forEach((val, row) => {
+            let n = parseInt(val);
+            if (isNaN(n) || n < 0) n = 0;
+            if (n > 255) n = 255;
+            const binary = n.toString(2).padStart(8, '0');
             for (let col = 0; col < 8; col++) {
                 if (binary[col] === '1') {
-                    pctx.fillStyle = '#ef4444';
-                    pctx.fillRect(col * 8, row * 8, 8, 8);
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fillRect(col * 8, row * 8, 8, 8);
                 }
             }
         });
+    };
+
+    const currentValues = () => Array.from(inputs).map(input => {
+        let n = parseInt(input.value);
+        if (isNaN(n) || n < 0) n = 0;
+        if (n > 255) n = 255;
+        return n;
+    });
+
+    const drawPreview = () => {
+        if (!pctx) return;
+        paintSprite(pctx, currentValues());
     };
 
     // --- Core Logic: Map Input Index to Bit Row ---
@@ -143,6 +155,78 @@ document.addEventListener('DOMContentLoaded', () => {
             updateHash();
         });
     }
+
+
+    // --- Save / Gallery (this browser session only) ---
+    const SAVE_KEY = 'bpc-saved-sprites';
+    const MAX_SAVED = 5;
+    const savedList = document.getElementById('saved-list');
+
+    const readSaved = () => {
+        try { return JSON.parse(sessionStorage.getItem(SAVE_KEY)) || []; }
+        catch (e) { return []; }
+    };
+    const writeSaved = (arr) => {
+        try { sessionStorage.setItem(SAVE_KEY, JSON.stringify(arr)); }
+        catch (e) { /* storage unavailable (e.g. private mode) */ }
+    };
+
+    const renderSaved = () => {
+        if (!savedList) return;
+        const saved = readSaved();
+        savedList.innerHTML = '';
+        if (saved.length === 0) {
+            const hint = document.createElement('span');
+            hint.className = 'saved-empty';
+            hint.textContent = 'Click Save to keep a sprite here (up to 5).';
+            savedList.appendChild(hint);
+            return;
+        }
+        saved.forEach((values) => {
+            const item = document.createElement('button');
+            item.className = 'saved-item';
+            item.title = 'Load this sprite';
+            const cv = document.createElement('canvas');
+            cv.width = 64;
+            cv.height = 64;
+            cv.className = 'saved-thumb';
+            paintSprite(cv.getContext('2d'), values);
+            item.appendChild(cv);
+            item.addEventListener('click', () => {
+                const hasDrawing = currentValues().some(v => v !== 0);
+                if (hasDrawing && !confirm('Load this saved sprite? Your current drawing will be replaced.')) return;
+                inputs.forEach((input, idx) => { input.value = values[idx]; });
+                refreshAllDisplays();
+                updateHash();
+            });
+            savedList.appendChild(item);
+        });
+    };
+
+    const saveBtn = document.getElementById('save-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const values = currentValues();
+            if (values.every(v => v === 0)) return; // nothing drawn yet
+            const saved = readSaved();
+            saved.unshift(values);
+            writeSaved(saved.slice(0, MAX_SAVED));
+            renderSaved();
+        });
+    }
+
+    // --- Share to Google Classroom ---
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            updateHash(); // make sure the URL reflects the current drawing
+            const shareUrl = 'https://classroom.google.com/share?url=' +
+                encodeURIComponent(window.location.href);
+            window.open(shareUrl, '_blank', 'noopener,width=600,height=650');
+        });
+    }
+
+    renderSaved();
 
 
     // --- URL Hash State Management ---

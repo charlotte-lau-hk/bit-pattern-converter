@@ -24,11 +24,6 @@
               class="credit-icon avatar">
             Charlotte Lau
           </a>
-          <span>&</span>
-          <a href="https://antigravity.google" target="_blank" class="credit-link">
-            <img src="https://antigravity.google/assets/image/antigravity-logo.png" alt="Antigravity" class="credit-icon">
-            Antigravity
-          </a>
         </div>
       </header>
 
@@ -198,9 +193,19 @@
         </div>
         <div class="display-controls">
           <button id="toggle-view" class="secondary-btn">Show Bits</button>
+          <button id="save-btn" class="secondary-btn">Save</button>
+          <button id="share-btn" class="secondary-btn">Share to Classroom</button>
           <button id="clear-all" class="secondary-btn danger">Clear All</button>
         </div>
       </main>
+    </div>
+
+    <!-- Saved sprites (this browser session) -->
+    <div class="saved-panel" id="saved-panel">
+      <div class="saved-header">
+        <h2>Saved <span class="saved-hint">— this session, 5 most recent</span></h2>
+      </div>
+      <div class="saved-list" id="saved-list"></div>
     </div>
 
   </div>
