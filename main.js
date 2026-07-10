@@ -5,6 +5,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let showBits = false;
 
+    // --- Pixel Art Preview (all 8 rows combined into an 8x8 sprite) ---
+    const previewCanvas = document.getElementById('preview-canvas');
+    const pctx = previewCanvas ? previewCanvas.getContext('2d') : null;
+
+    const drawPreview = () => {
+        if (!pctx) return;
+        pctx.fillStyle = '#0f172a';
+        pctx.fillRect(0, 0, 64, 64);
+        inputs.forEach((input, row) => {
+            let v = parseInt(input.value);
+            if (isNaN(v) || v < 0) v = 0;
+            if (v > 255) v = 255;
+            const binary = v.toString(2).padStart(8, '0');
+            for (let col = 0; col < 8; col++) {
+                if (binary[col] === '1') {
+                    pctx.fillStyle = '#ef4444';
+                    pctx.fillRect(col * 8, row * 8, 8, 8);
+                }
+            }
+        });
+    };
+
     // --- Core Logic: Map Input Index to Bit Row ---
 
     const updateBitDisplay = (index, value) => {
@@ -39,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 bit.textContent = '';
             }
         });
+
+        // Keep the combined pixel-art preview in sync
+        drawPreview();
     };
 
     const refreshAllDisplays = () => {

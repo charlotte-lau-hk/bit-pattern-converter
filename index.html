@@ -13,23 +13,31 @@
 
 <body>
   <div class="app-container">
-    <header>
-      <h1><a href="#0,0,0,0,0,0,0,0">Bit Pattern Converter</a></h1>
-      <p>Visualize 8-bit integers as binary patterns</p>
-      <div class="credits">
-        <span>By</span>
-        <a href="https://github.com/charlotte-lau-hk/" target="_blank" class="credit-link">
-          <img src="https://avatars.githubusercontent.com/u/98373438?v=4&s=120" alt="Charlotte Lau"
-            class="credit-icon avatar">
-          Charlotte Lau
-        </a>
-        <span>&</span>
-        <a href="https://antigravity.google" target="_blank" class="credit-link">
-          <img src="https://antigravity.google/assets/image/antigravity-logo.png" alt="Antigravity" class="credit-icon">
-          Antigravity
-        </a>
+    <div class="top-bar">
+      <header>
+        <h1><a href="#0,0,0,0,0,0,0,0">Bit Pattern Converter</a></h1>
+        <p>Visualize 8-bit integers as binary patterns</p>
+        <div class="credits">
+          <span>By</span>
+          <a href="https://github.com/charlotte-lau-hk/" target="_blank" class="credit-link">
+            <img src="https://avatars.githubusercontent.com/u/98373438?v=4&s=120" alt="Charlotte Lau"
+              class="credit-icon avatar">
+            Charlotte Lau
+          </a>
+          <span>&</span>
+          <a href="https://antigravity.google" target="_blank" class="credit-link">
+            <img src="https://antigravity.google/assets/image/antigravity-logo.png" alt="Antigravity" class="credit-icon">
+            Antigravity
+          </a>
+        </div>
+      </header>
+
+      <div class="preview-box">
+        <span class="preview-label">Preview Pixel Art</span>
+        <canvas id="preview-canvas" width="64" height="64" class="preview-canvas"
+          aria-label="Combined 8 by 8 pixel-art preview of all rows"></canvas>
       </div>
-    </header>
+    </div>
 
     <!-- Mobile Toggle Button -->
     <button id="toggle-inputs" class="mobile-toggle" aria-label="Toggle inputs">
