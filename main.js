@@ -5,6 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let showBits = false;
 
+    // Parse and clamp any raw value to a valid 8-bit integer (0-255)
+    const clamp255 = (value) => {
+        let n = parseInt(value);
+        if (isNaN(n) || n < 0) n = 0;
+        if (n > 255) n = 255;
+        return n;
+    };
+
     // --- Pixel Art Preview (all 8 rows combined into an 8x8 sprite) ---
     const previewCanvas = document.getElementById('preview-canvas');
     const pctx = previewCanvas ? previewCanvas.getContext('2d') : null;
@@ -14,10 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, 64, 64);
         values.forEach((val, row) => {
-            let n = parseInt(val);
-            if (isNaN(n) || n < 0) n = 0;
-            if (n > 255) n = 255;
-            const binary = n.toString(2).padStart(8, '0');
+            const binary = clamp255(val).toString(2).padStart(8, '0');
             for (let col = 0; col < 8; col++) {
                 if (binary[col] === '1') {
                     ctx.fillStyle = '#ef4444';
@@ -27,12 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const currentValues = () => Array.from(inputs).map(input => {
-        let n = parseInt(input.value);
-        if (isNaN(n) || n < 0) n = 0;
-        if (n > 255) n = 255;
-        return n;
-    });
+    const currentValues = () => Array.from(inputs).map(input => clamp255(input.value));
 
     const drawPreview = () => {
         if (!pctx) return;
@@ -42,11 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Core Logic: Map Input Index to Bit Row ---
 
     const updateBitDisplay = (index, value) => {
-        // Clamp and parse
-        let intVal = parseInt(value);
-        if (isNaN(intVal)) intVal = 0;
-        if (intVal > 255) intVal = 255;
-        if (intVal < 0) intVal = 0;
+        const intVal = clamp255(value);
 
         // Binary string
         const binaryString = intVal.toString(2).padStart(8, '0');
@@ -58,13 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const bits = targetRow.querySelectorAll('.bit');
         bits.forEach((bit, bitIndex) => {
             const bitValue = binaryString[bitIndex];
-            
+
             // Update Visual Pattern
             if (bitValue === '1') {
                 bit.classList.add('active');
             } else {
                 bit.classList.remove('active');
             }
+            bit.setAttribute('aria-pressed', bitValue === '1' ? 'true' : 'false');
 
             // Update Text Content (0 or 1)
             if (showBits) {
@@ -88,19 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     inputs.forEach((input, index) => {
         input.addEventListener('input', (e) => {
-            let value = e.target.value;
+            const raw = e.target.value;
 
-            // Validate limits in real-time
-            if (value > 255) {
-                value = 255;
-                e.target.value = 255;
-            }
-            if (value < 0) {
-                value = 0;
-                e.target.value = 0;
+            // Validate limits in real-time (leave empty string alone so typing isn't interrupted)
+            if (raw !== '') {
+                const clamped = clamp255(raw);
+                if (String(clamped) !== raw) e.target.value = clamped;
             }
 
-            updateBitDisplay(index, value);
+            updateBitDisplay(index, e.target.value);
             updateHash();
         });
 
@@ -113,13 +106,17 @@ document.addEventListener('DOMContentLoaded', () => {
     bitRows.forEach((row, rowIndex) => {
         const bits = row.querySelectorAll('.bit');
         bits.forEach((bit, bitIndex) => {
-            bit.addEventListener('click', () => {
-                const input = inputs[rowIndex];
-                let currentValue = parseInt(input.value) || 0;
+            // Bits are index 0 (MSB, 128) to 7 (LSB, 1)
+            const weight = Math.pow(2, 7 - bitIndex);
 
-                // Calculate weight of the clicked bit
-                // Bits are index 0 (MSB, 128) to 7 (LSB, 1)
-                const weight = Math.pow(2, 7 - bitIndex);
+            // Make each bit keyboard-operable, not just clickable
+            bit.setAttribute('role', 'button');
+            bit.tabIndex = 0;
+            bit.setAttribute('aria-label', `Row ${rowIndex + 1}, bit value ${weight}`);
+
+            const toggleBit = () => {
+                const input = inputs[rowIndex];
+                const currentValue = parseInt(input.value) || 0;
 
                 // XOR to toggle the bit in the integer
                 const newValue = currentValue ^ weight;
@@ -128,6 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 input.value = newValue;
                 updateBitDisplay(rowIndex, newValue);
                 updateHash();
+            };
+
+            bit.addEventListener('click', toggleBit);
+            bit.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleBit();
+                }
             });
         });
     });
@@ -135,10 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Toggle View Logic ---
     if (toggleViewBtn) {
+        const toggleViewLabel = toggleViewBtn.querySelector('.btn-label');
         toggleViewBtn.addEventListener('click', () => {
             showBits = !showBits;
             toggleViewBtn.classList.toggle('active', showBits);
-            toggleViewBtn.textContent = showBits ? 'Show Pattern' : 'Show Bits';
+            if (toggleViewLabel) toggleViewLabel.textContent = showBits ? 'Show Pattern' : 'Show Bits';
             refreshAllDisplays();
         });
     }
@@ -157,17 +163,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- Save / Gallery (this browser session only) ---
+    // --- Save / Gallery (persisted in this browser) ---
     const SAVE_KEY = 'bpc-saved-sprites';
-    const MAX_SAVED = 5;
+    const MAX_SAVED = 6;
     const savedList = document.getElementById('saved-list');
 
     const readSaved = () => {
-        try { return JSON.parse(sessionStorage.getItem(SAVE_KEY)) || []; }
+        try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || []; }
         catch (e) { return []; }
     };
     const writeSaved = (arr) => {
-        try { sessionStorage.setItem(SAVE_KEY, JSON.stringify(arr)); }
+        try { localStorage.setItem(SAVE_KEY, JSON.stringify(arr)); }
         catch (e) { /* storage unavailable (e.g. private mode) */ }
     };
 
@@ -242,9 +248,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const values = hash.split(',');
         inputs.forEach((input, index) => {
-            if (values[index] !== undefined && input.value !== values[index]) {
-                input.value = values[index];
-                updateBitDisplay(index, values[index]);
+            if (values[index] === undefined) return;
+            // Clamp so the input field always matches what the bits/preview show
+            const clamped = String(clamp255(values[index]));
+            if (input.value !== clamped) {
+                input.value = clamped;
+                updateBitDisplay(index, clamped);
             }
         });
     };
