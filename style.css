@@ -280,6 +280,7 @@ header p {
   margin-top: 1.5rem;
   display: flex;
   justify-content: center;
+  gap: 12px;
 }
 
 .secondary-btn {
@@ -305,6 +306,13 @@ header p {
 }
 
 .secondary-btn.active {
+  background: var(--accent-color);
+  color: white;
+  border-color: transparent;
+}
+
+/* Clear All: hint at a destructive action on hover */
+.secondary-btn.danger:hover {
   background: var(--accent-color);
   color: white;
   border-color: transparent;

@@ -107,6 +107,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // --- Clear All Logic ---
+    const clearAllBtn = document.getElementById('clear-all');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            inputs.forEach((input, index) => {
+                input.value = '';
+                updateBitDisplay(index, 0);
+            });
+            updateHash();
+        });
+    }
+
+
     // --- URL Hash State Management ---
 
     const updateHash = () => {
