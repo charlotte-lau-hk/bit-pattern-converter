@@ -5,6 +5,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let showBits = false;
 
+    // --- Bilingual UI (English / Traditional Chinese) ---
+    const I18N = {
+        en: {
+            title: 'Bit Pattern Converter',
+            subtitle: 'Visualize 8-bit integers as binary patterns',
+            by: 'By',
+            previewLabel: 'Preview Pixel Art',
+            previewAria: 'Combined 8 by 8 pixel-art preview of all rows',
+            toggleInputsAria: 'Toggle inputs',
+            closeAria: 'Close',
+            inputs: 'Inputs',
+            patterns: 'Patterns',
+            rowLabel: 'Row {n}',
+            bitAria: 'Row {row}, bit value {weight}',
+            showBits: 'Show Bits',
+            showPattern: 'Show Pattern',
+            clearAll: 'Clear All',
+            save: 'Save',
+            shareClassroom: 'Share to Classroom',
+            savedTitle: 'Saved sprites',
+            savedHint: '— up to 6 most recent sprites',
+            savedEmpty: 'Click Save to keep a sprite here (up to 6).',
+            loadSprite: 'Load this sprite',
+            confirmLoad: 'Load this saved sprite? Your current drawing will be replaced.'
+        },
+        zh: {
+            title: '位元樣式轉換器',
+            subtitle: '以二進制樣式呈現 8 位元整數',
+            by: '作者',
+            previewLabel: '像素藝術預覽',
+            previewAria: '由所有行合併而成的 8×8 像素藝術預覽',
+            toggleInputsAria: '開關輸入面板',
+            closeAria: '關閉',
+            inputs: '輸入',
+            patterns: '樣式',
+            rowLabel: '第 {n} 行',
+            bitAria: '第 {row} 行，位元值 {weight}',
+            showBits: '顯示位元',
+            showPattern: '顯示樣式',
+            clearAll: '全部清除',
+            save: '儲存',
+            shareClassroom: '分享至 Classroom',
+            savedTitle: '已儲存的精靈圖 (sprite)',
+            savedHint: '— 最多保留最近 6 個精靈圖',
+            savedEmpty: '按「儲存」即可把精靈圖保留在這裡（最多 6 個）。',
+            loadSprite: '載入此精靈圖',
+            confirmLoad: '要載入這個已儲存的精靈圖嗎？目前的圖案將會被取代。'
+        }
+    };
+
+    const LANG_KEY = 'bpc-lang';
+    let lang = 'en';
+    try { if (localStorage.getItem(LANG_KEY) === 'zh') lang = 'zh'; } catch (e) { /* default English */ }
+
+    const t = (key) => I18N[lang][key];
+
     // Parse and clamp any raw value to a valid 8-bit integer (0-255)
     const clamp255 = (value) => {
         let n = parseInt(value);
@@ -112,7 +168,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Make each bit keyboard-operable, not just clickable
             bit.setAttribute('role', 'button');
             bit.tabIndex = 0;
-            bit.setAttribute('aria-label', `Row ${rowIndex + 1}, bit value ${weight}`);
+            bit.dataset.row = rowIndex + 1;
+            bit.dataset.weight = weight;
+            bit.setAttribute('aria-label',
+                t('bitAria').replace('{row}', rowIndex + 1).replace('{weight}', weight));
 
             const toggleBit = () => {
                 const input = inputs[rowIndex];
@@ -139,12 +198,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Toggle View Logic ---
+    const toggleViewLabel = toggleViewBtn ? toggleViewBtn.querySelector('.btn-label') : null;
+    const updateToggleViewLabel = () => {
+        if (toggleViewLabel) toggleViewLabel.textContent = showBits ? t('showPattern') : t('showBits');
+    };
     if (toggleViewBtn) {
-        const toggleViewLabel = toggleViewBtn.querySelector('.btn-label');
         toggleViewBtn.addEventListener('click', () => {
             showBits = !showBits;
             toggleViewBtn.classList.toggle('active', showBits);
-            if (toggleViewLabel) toggleViewLabel.textContent = showBits ? 'Show Pattern' : 'Show Bits';
+            updateToggleViewLabel();
             refreshAllDisplays();
         });
     }
@@ -184,14 +246,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (saved.length === 0) {
             const hint = document.createElement('span');
             hint.className = 'saved-empty';
-            hint.textContent = 'Click Save to keep a sprite here (up to 5).';
+            hint.textContent = t('savedEmpty');
             savedList.appendChild(hint);
             return;
         }
         saved.forEach((values) => {
             const item = document.createElement('button');
             item.className = 'saved-item';
-            item.title = 'Load this sprite';
+            item.title = t('loadSprite');
+            item.setAttribute('aria-label', t('loadSprite'));
             const cv = document.createElement('canvas');
             cv.width = 64;
             cv.height = 64;
@@ -200,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             item.appendChild(cv);
             item.addEventListener('click', () => {
                 const hasDrawing = currentValues().some(v => v !== 0);
-                if (hasDrawing && !confirm('Load this saved sprite? Your current drawing will be replaced.')) return;
+                if (hasDrawing && !confirm(t('confirmLoad'))) return;
                 inputs.forEach((input, idx) => { input.value = values[idx]; });
                 refreshAllDisplays();
                 updateHash();
@@ -232,7 +295,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    renderSaved();
+    // --- Language Switch ---
+    const langButtons = document.querySelectorAll('.lang-btn');
+
+    const applyI18n = () => {
+        document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+        document.title = t('title');
+
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+            let text = t(el.dataset.i18n);
+            if (el.dataset.row) text = text.replace('{n}', el.dataset.row);
+            el.textContent = text;
+        });
+        document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+            el.setAttribute('aria-label', t(el.dataset.i18nAria));
+        });
+        document.querySelectorAll('.bit').forEach((bit) => {
+            bit.setAttribute('aria-label',
+                t('bitAria').replace('{row}', bit.dataset.row).replace('{weight}', bit.dataset.weight));
+        });
+
+        langButtons.forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+
+        updateToggleViewLabel();
+        renderSaved();
+    };
+
+    langButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            if (btn.dataset.lang === lang) return;
+            lang = btn.dataset.lang;
+            try { localStorage.setItem(LANG_KEY, lang); } catch (e) { /* storage unavailable */ }
+            applyI18n();
+        });
+    });
+
+    applyI18n();
 
 
     // --- URL Hash State Management ---

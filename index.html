@@ -8,17 +8,19 @@
   <link rel="stylesheet" href="./style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+    rel="stylesheet">
 </head>
 
 <body>
   <div class="app-container">
     <div class="top-bar">
       <header>
-        <h1><a href="#0,0,0,0,0,0,0,0">Bit Pattern Converter</a></h1>
-        <p>Visualize 8-bit integers as binary patterns</p>
+        <h1><a href="#0,0,0,0,0,0,0,0" data-i18n="title">Bit Pattern Converter</a></h1>
+        <p data-i18n="subtitle">Visualize 8-bit integers as binary patterns</p>
         <div class="credits">
-          <span>By</span>
+          <span data-i18n="by">By</span>
           <a href="https://github.com/charlotte-lau-hk/" target="_blank" class="credit-link">
             <img src="https://avatars.githubusercontent.com/u/98373438?v=4&s=120" alt="Charlotte Lau"
               class="credit-icon avatar">
@@ -27,15 +29,20 @@
         </div>
       </header>
 
+      <div class="lang-switch" role="group" aria-label="Language / 語言">
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="zh" lang="zh-Hant">中文</button>
+      </div>
+
       <div class="preview-box">
-        <span class="preview-label">Preview Pixel Art</span>
-        <canvas id="preview-canvas" width="64" height="64" class="preview-canvas"
+        <span class="preview-label" data-i18n="previewLabel">Preview Pixel Art</span>
+        <canvas id="preview-canvas" width="64" height="64" class="preview-canvas" data-i18n-aria="previewAria"
           aria-label="Combined 8 by 8 pixel-art preview of all rows"></canvas>
       </div>
     </div>
 
     <!-- Mobile Toggle Button -->
-    <button id="toggle-inputs" class="mobile-toggle" aria-label="Toggle inputs">
+    <button id="toggle-inputs" class="mobile-toggle" data-i18n-aria="toggleInputsAria" aria-label="Toggle inputs">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -47,41 +54,42 @@
       <!-- Input Panel -->
       <aside class="input-panel" id="input-panel">
         <div class="panel-header">
-          <h2>Inputs</h2>
-          <button id="close-inputs" class="close-btn mobile-only" aria-label="Close">&times;</button>
+          <h2 data-i18n="inputs">Inputs</h2>
+          <button id="close-inputs" class="close-btn mobile-only" data-i18n-aria="closeAria"
+            aria-label="Close">&times;</button>
         </div>
         <div class="inputs-list">
           <!-- 8 Inputs -->
           <div class="input-group">
-            <label for="row-1">Row 1</label>
+            <label for="row-1" data-i18n="rowLabel" data-row="1">Row 1</label>
             <input id="row-1" type="number" min="0" max="255" placeholder="0" class="decimal-input" data-index="0" />
           </div>
           <div class="input-group">
-            <label for="row-2">Row 2</label>
+            <label for="row-2" data-i18n="rowLabel" data-row="2">Row 2</label>
             <input id="row-2" type="number" min="0" max="255" placeholder="0" class="decimal-input" data-index="1" />
           </div>
           <div class="input-group">
-            <label for="row-3">Row 3</label>
+            <label for="row-3" data-i18n="rowLabel" data-row="3">Row 3</label>
             <input id="row-3" type="number" min="0" max="255" placeholder="0" class="decimal-input" data-index="2" />
           </div>
           <div class="input-group">
-            <label for="row-4">Row 4</label>
+            <label for="row-4" data-i18n="rowLabel" data-row="4">Row 4</label>
             <input id="row-4" type="number" min="0" max="255" placeholder="0" class="decimal-input" data-index="3" />
           </div>
           <div class="input-group">
-            <label for="row-5">Row 5</label>
+            <label for="row-5" data-i18n="rowLabel" data-row="5">Row 5</label>
             <input id="row-5" type="number" min="0" max="255" placeholder="0" class="decimal-input" data-index="4" />
           </div>
           <div class="input-group">
-            <label for="row-6">Row 6</label>
+            <label for="row-6" data-i18n="rowLabel" data-row="6">Row 6</label>
             <input id="row-6" type="number" min="0" max="255" placeholder="0" class="decimal-input" data-index="5" />
           </div>
           <div class="input-group">
-            <label for="row-7">Row 7</label>
+            <label for="row-7" data-i18n="rowLabel" data-row="7">Row 7</label>
             <input id="row-7" type="number" min="0" max="255" placeholder="0" class="decimal-input" data-index="6" />
           </div>
           <div class="input-group">
-            <label for="row-8">Row 8</label>
+            <label for="row-8" data-i18n="rowLabel" data-row="8">Row 8</label>
             <input id="row-8" type="number" min="0" max="255" placeholder="0" class="decimal-input" data-index="7" />
           </div>
         </div>
@@ -90,7 +98,7 @@
       <!-- Display Panel -->
       <main class="display-panel">
         <div class="panel-header">
-          <h2>Patterns</h2>
+          <h2 data-i18n="patterns">Patterns</h2>
         </div>
         <div class="patterns-list">
           <!-- 8 Bit Rows -->
@@ -206,7 +214,7 @@
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
-            <span class="btn-label">Clear All</span>
+            <span class="btn-label" data-i18n="clearAll">Clear All</span>
           </button>
           <button id="save-btn" class="secondary-btn">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -215,7 +223,7 @@
               <polyline points="17 21 17 13 7 13 7 21"></polyline>
               <polyline points="7 3 7 8 15 8"></polyline>
             </svg>
-            <span class="btn-label">Save</span>
+            <span class="btn-label" data-i18n="save">Save</span>
           </button>
           <button id="share-btn" class="secondary-btn">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -226,7 +234,7 @@
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
             </svg>
-            <span class="btn-label">Share to Classroom</span>
+            <span class="btn-label" data-i18n="shareClassroom">Share to Classroom</span>
           </button>
         </div>
       </main>
@@ -235,7 +243,8 @@
     <!-- Saved sprites (persisted in this browser) -->
     <div class="saved-panel" id="saved-panel">
       <div class="saved-header">
-        <h2>Saved sprites <span class="saved-hint">— up to 6 most recent sprites</span></h2>
+        <h2><span data-i18n="savedTitle">Saved sprites</span> <span class="saved-hint" data-i18n="savedHint">— up to 6
+            most recent sprites</span></h2>
       </div>
       <div class="saved-list" id="saved-list"></div>
     </div>
