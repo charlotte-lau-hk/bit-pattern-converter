@@ -355,7 +355,7 @@ header p {
 
 /* Secondary Button Styles */
 .display-controls {
-  margin-top: 1.5rem;
+  margin-top: 2.25rem;
   display: flex;
   justify-content: center;
   gap: 12px;
