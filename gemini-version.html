@@ -1,4 +1,4 @@
-<!DOCTYPE1 html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
@@ -34,14 +34,30 @@
       gap: 12px;
     }
 
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     h1 {
-      font-size: 1.2rem;
-      text-align: center;
+      font-size: 1.1rem;
       color: #1a252f;
     }
 
+    .lang-btn {
+      background-color: #edf2f7;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #2d3748;
+    }
+
     .description {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       background-color: #eef6ff;
       border-left: 4px solid #3182ce;
       padding: 8px 12px;
@@ -60,8 +76,8 @@
 
     .toggle-btn, .clear-btn {
       flex: 1;
-      padding: 10px 8px;
-      font-size: 0.9rem;
+      padding: 10px 6px;
+      font-size: 0.85rem;
       font-weight: bold;
       border: none;
       border-radius: 6px;
@@ -193,30 +209,34 @@
       color: white;
       padding: 10px 16px;
       border-radius: 20px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       display: none;
       z-index: 1000;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <div id="errorToast" class="error-toast">請輸入 0 至 255 的整數！</div>
+  <div id="errorToast" class="error-toast"></div>
 
   <div class="container">
-    <h1>黑白圖像與位元對應工具</h1>
+    <div class="header-bar">
+      <h1 id="uiTitle">黑白圖像與位元對應工具</h1>
+      <button class="lang-btn" id="langBtn" onclick="toggleLanguage()">English</button>
+    </div>
 
-    <div class="description" id="statusDescription">
+    <div class="description" id="uiDesc">
       每列輸入一個十進位數值（0–255），對應 8 位元（bits）繪製 8×8 點陣圖（Bitmap）。
     </div>
 
     <div class="controls">
       <button class="toggle-btn" id="toggleBinaryBtn" onclick="toggleBinary()">
-        <span>👁️ 顯示二進位 (Binary)</span>
+        <span id="uiToggleBtn">👁️ 顯示二進位 (Binary)</span>
       </button>
       <button class="clear-btn" onclick="clearAll()">
-        <span>🗑️ 清除全部</span>
+        <span id="uiClearBtn">🗑️ 清除全部</span>
       </button>
     </div>
 
@@ -228,16 +248,55 @@
     const rowsCount = 8;
     const gridContainer = document.getElementById('gridContainer');
     const toast = document.getElementById('errorToast');
+    
     let showBinaryState = false;
+    let currentLang = 'zh'; // 預設繁體中文
 
-    // 初始化 8 行
+    const i18n = {
+      zh: {
+        title: "黑白圖像與位元對應工具",
+        langBtn: "English",
+        desc: "每列輸入一個十進位數值（0–255），對應 8 位元（bits）繪製 8×8 點陣圖（Bitmap）。",
+        toggleShow: "👁️ 顯示二進位 (Binary)",
+        toggleHide: "👁️ 隱藏二進位 (Binary)",
+        clear: "🗑️ 清除全部",
+        errorToast: "請輸入 0 至 255 的整數！"
+      },
+      en: {
+        title: "Bitmap & Bit Storage Tool",
+        langBtn: "繁體中文",
+        desc: "Enter a decimal value (0–255) per row to map 8 bits into an 8×8 bitmap pattern.",
+        toggleShow: "👁️ Show Binary",
+        toggleHide: "👁️ Hide Binary",
+        clear: "🗑️ Clear All",
+        errorToast: "Please enter an integer between 0 and 255!"
+      }
+    };
+
+    function updateLanguageUI() {
+      const texts = i18n[currentLang];
+      document.getElementById('uiTitle').innerText = texts.title;
+      document.getElementById('langBtn').innerText = texts.langBtn;
+      document.getElementById('uiDesc').innerText = texts.desc;
+      document.getElementById('uiClearBtn').innerText = texts.clear;
+      
+      const toggleBtnText = document.getElementById('uiToggleBtn');
+      toggleBtnText.innerText = showBinaryState ? texts.toggleHide : texts.toggleShow;
+      
+      document.documentElement.lang = currentLang === 'zh' ? 'zh-Hant' : 'en';
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      updateLanguageUI();
+    }
+
     function initGrid() {
       gridContainer.innerHTML = '';
       for (let i = 0; i < rowsCount; i++) {
         const rowWrapper = document.createElement('div');
         rowWrapper.className = 'row-wrapper';
 
-        // 輸入框容器
         const inputGroup = document.createElement('div');
         inputGroup.className = 'input-group';
 
@@ -257,7 +316,6 @@
         inputGroup.appendChild(input);
         inputGroup.appendChild(binaryDisplay);
 
-        // 8 個像素方格
         const pixelsRow = document.createElement('div');
         pixelsRow.className = 'pixels-row';
         pixelsRow.id = `row-pixels-${i}`;
@@ -277,26 +335,22 @@
       }
     }
 
-    // 處理輸入與驗證
     function handleInput(e, rowIndex) {
       const inputEl = e.target;
       const valStr = inputEl.value.trim();
 
-      // 空白時預設為 0 更新，但不報錯
       if (valStr === '') {
         inputEl.classList.remove('error');
         updateRow(rowIndex, 0);
         return;
       }
 
-      // 正則驗證：必須為純數字整數
       const isValidInt = /^\d+$/.test(valStr);
       const valNum = parseInt(valStr, 10);
 
       if (!isValidInt || valNum < 0 || valNum > 255) {
         inputEl.classList.add('error');
         showToast();
-        // 還原為有效數值或維持最後正確狀態
         return;
       }
 
@@ -304,21 +358,17 @@
       updateRow(rowIndex, valNum);
     }
 
-    // 更新單列圖案與二進位顯示
     function updateRow(rowIndex, val) {
-      // 轉換為 8 位元二進位字串 (補零)
       const binaryStr = val.toString(2).padStart(8, '0');
       
-      // 更新二進位文字顯示
       const binaryDisplay = document.getElementById(`binary-${rowIndex}`);
       if (binaryDisplay) {
         binaryDisplay.innerText = binaryStr;
       }
 
-      // 更新 8 個像素格 (最高位 bit 7 在最左邊, bit 0 在最右邊)
       for (let bit = 0; bit < 8; bit++) {
         const pixel = document.getElementById(`pixel-${rowIndex}-${bit}`);
-        const bitValue = binaryStr[bit]; // '1' 或 '0'
+        const bitValue = binaryStr[bit];
 
         if (bitValue === '1') {
           pixel.className = 'pixel on';
@@ -330,7 +380,6 @@
       }
     }
 
-    // 切換二進位顯示模式
     function toggleBinary() {
       showBinaryState = !showBinaryState;
       const btn = document.getElementById('toggleBinaryBtn');
@@ -343,7 +392,8 @@
         btn.classList.remove('active');
       }
 
-      // 重新整理像素格上的文字數字
+      updateLanguageUI();
+
       const inputs = document.querySelectorAll('.row-input');
       inputs.forEach((input, index) => {
         const val = parseInt(input.value, 10) || 0;
@@ -351,7 +401,6 @@
       });
     }
 
-    // 清除全部回到預設 state
     function clearAll() {
       const inputs = document.querySelectorAll('.row-input');
       inputs.forEach((input, index) => {
@@ -361,9 +410,9 @@
       });
     }
 
-    // 顯示錯誤提示 Toast
     let toastTimer;
     function showToast() {
+      toast.innerText = i18n[currentLang].errorToast;
       toast.style.display = 'block';
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
@@ -371,8 +420,9 @@
       }, 2000);
     }
 
-    // 啟動初始化
+    // 初始化頁面與語言
     initGrid();
+    updateLanguageUI();
   </script>
 </body>
 </html>
