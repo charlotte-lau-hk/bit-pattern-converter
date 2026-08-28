@@ -4,6 +4,8 @@ A client-side web application that converts 8-bit integers into visual binary bi
 
 [**Live Demo**](https://charlotte-lau-hk.github.io/bit-pattern-converter/)
 
+[Simplified version](https://charlotte-lau-hk.github.io/bit-pattern-converter/gemini-version.html) [Example prompt](https://edtools.hk/prompt-cards/example-1)
+
 ![Verification](./screenshot.png)
 
 ## Features
