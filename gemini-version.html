@@ -1,0 +1,378 @@
+<!DOCTYPE1 html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>點陣圖儲存原理學習工具 (Bitmap Storage Concept)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      text-align: center;
+      color: #1a252f;
+    }
+
+    .description {
+      font-size: 0.9rem;
+      background-color: #eef6ff;
+      border-left: 4px solid #3182ce;
+      padding: 8px 12px;
+      border-radius: 4px;
+      line-height: 1.4;
+      color: #2b6cb0;
+      font-weight: bold;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-btn, .clear-btn {
+      flex: 1;
+      padding: 10px 8px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .toggle-btn {
+      background-color: #edf2f7;
+      color: #2d3748;
+      border: 1px solid #cbd5e0;
+    }
+
+    .toggle-btn.active {
+      background-color: #3182ce;
+      color: white;
+      border-color: #2b6cb0;
+    }
+
+    .clear-btn {
+      background-color: #fed7d7;
+      color: #9b2c2c;
+    }
+
+    .clear-btn:active {
+      background-color: #feb2b2;
+    }
+
+    .grid-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background-color: #cbd5e0;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .row-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background-color: #ffffff;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      width: 54px;
+      position: relative;
+    }
+
+    .row-input {
+      width: 100%;
+      height: 36px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: bold;
+      border: 2px solid #cbd5e0;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .row-input:focus {
+      border-color: #3182ce;
+    }
+
+    .row-input.error {
+      border-color: #e53e3e;
+      background-color: #fff5f5;
+    }
+
+    .binary-display {
+      font-family: monospace;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      color: #718096;
+      text-align: center;
+      display: none;
+      white-space: nowrap;
+    }
+
+    .show-binary .binary-display {
+      display: block;
+    }
+
+    .pixels-row {
+      display: flex;
+      flex: 1;
+      gap: 2px;
+      height: 36px;
+    }
+
+    .pixel {
+      flex: 1;
+      height: 100%;
+      border-radius: 2px;
+      transition: background-color 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .pixel.off {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #a0aec0;
+    }
+
+    .pixel.on {
+      background-color: #000000;
+      border: 1px solid #000000;
+      color: #ffffff;
+    }
+
+    .error-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #e53e3e;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="errorToast" class="error-toast">請輸入 0 至 255 的整數！</div>
+
+  <div class="container">
+    <h1>黑白圖像與位元對應工具</h1>
+
+    <div class="description" id="statusDescription">
+      每列輸入一個十進位數值（0–255），對應 8 位元（bits）繪製 8×8 點陣圖（Bitmap）。
+    </div>
+
+    <div class="controls">
+      <button class="toggle-btn" id="toggleBinaryBtn" onclick="toggleBinary()">
+        <span>👁️ 顯示二進位 (Binary)</span>
+      </button>
+      <button class="clear-btn" onclick="clearAll()">
+        <span>🗑️ 清除全部</span>
+      </button>
+    </div>
+
+    <div class="grid-container" id="gridContainer">
+      </div>
+  </div>
+
+  <script>
+    const rowsCount = 8;
+    const gridContainer = document.getElementById('gridContainer');
+    const toast = document.getElementById('errorToast');
+    let showBinaryState = false;
+
+    // 初始化 8 行
+    function initGrid() {
+      gridContainer.innerHTML = '';
+      for (let i = 0; i < rowsCount; i++) {
+        const rowWrapper = document.createElement('div');
+        rowWrapper.className = 'row-wrapper';
+
+        // 輸入框容器
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.inputMode = 'numeric';
+        input.className = 'row-input';
+        input.value = '0';
+        input.dataset.rowIndex = i;
+        input.addEventListener('input', (e) => handleInput(e, i));
+
+        const binaryDisplay = document.createElement('div');
+        binaryDisplay.className = 'binary-display';
+        binaryDisplay.id = `binary-${i}`;
+        binaryDisplay.innerText = '00000000';
+
+        inputGroup.appendChild(input);
+        inputGroup.appendChild(binaryDisplay);
+
+        // 8 個像素方格
+        const pixelsRow = document.createElement('div');
+        pixelsRow.className = 'pixels-row';
+        pixelsRow.id = `row-pixels-${i}`;
+
+        for (let j = 0; j < 8; j++) {
+          const pixel = document.createElement('div');
+          pixel.className = 'pixel off';
+          pixel.id = `pixel-${i}-${j}`;
+          pixelsRow.appendChild(pixel);
+        }
+
+        rowWrapper.appendChild(inputGroup);
+        rowWrapper.appendChild(pixelsRow);
+        gridContainer.appendChild(rowWrapper);
+
+        updateRow(i, 0);
+      }
+    }
+
+    // 處理輸入與驗證
+    function handleInput(e, rowIndex) {
+      const inputEl = e.target;
+      const valStr = inputEl.value.trim();
+
+      // 空白時預設為 0 更新，但不報錯
+      if (valStr === '') {
+        inputEl.classList.remove('error');
+        updateRow(rowIndex, 0);
+        return;
+      }
+
+      // 正則驗證：必須為純數字整數
+      const isValidInt = /^\d+$/.test(valStr);
+      const valNum = parseInt(valStr, 10);
+
+      if (!isValidInt || valNum < 0 || valNum > 255) {
+        inputEl.classList.add('error');
+        showToast();
+        // 還原為有效數值或維持最後正確狀態
+        return;
+      }
+
+      inputEl.classList.remove('error');
+      updateRow(rowIndex, valNum);
+    }
+
+    // 更新單列圖案與二進位顯示
+    function updateRow(rowIndex, val) {
+      // 轉換為 8 位元二進位字串 (補零)
+      const binaryStr = val.toString(2).padStart(8, '0');
+      
+      // 更新二進位文字顯示
+      const binaryDisplay = document.getElementById(`binary-${rowIndex}`);
+      if (binaryDisplay) {
+        binaryDisplay.innerText = binaryStr;
+      }
+
+      // 更新 8 個像素格 (最高位 bit 7 在最左邊, bit 0 在最右邊)
+      for (let bit = 0; bit < 8; bit++) {
+        const pixel = document.getElementById(`pixel-${rowIndex}-${bit}`);
+        const bitValue = binaryStr[bit]; // '1' 或 '0'
+
+        if (bitValue === '1') {
+          pixel.className = 'pixel on';
+          pixel.innerText = showBinaryState ? '1' : '';
+        } else {
+          pixel.className = 'pixel off';
+          pixel.innerText = showBinaryState ? '0' : '';
+        }
+      }
+    }
+
+    // 切換二進位顯示模式
+    function toggleBinary() {
+      showBinaryState = !showBinaryState;
+      const btn = document.getElementById('toggleBinaryBtn');
+      
+      if (showBinaryState) {
+        gridContainer.classList.add('show-binary');
+        btn.classList.add('active');
+      } else {
+        gridContainer.classList.remove('show-binary');
+        btn.classList.remove('active');
+      }
+
+      // 重新整理像素格上的文字數字
+      const inputs = document.querySelectorAll('.row-input');
+      inputs.forEach((input, index) => {
+        const val = parseInt(input.value, 10) || 0;
+        updateRow(index, val);
+      });
+    }
+
+    // 清除全部回到預設 state
+    function clearAll() {
+      const inputs = document.querySelectorAll('.row-input');
+      inputs.forEach((input, index) => {
+        input.value = '0';
+        input.classList.remove('error');
+        updateRow(index, 0);
+      });
+    }
+
+    // 顯示錯誤提示 Toast
+    let toastTimer;
+    function showToast() {
+      toast.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2000);
+    }
+
+    // 啟動初始化
+    initGrid();
+  </script>
+</body>
+</html>
