@@ -7,7 +7,7 @@ A client-side web application that converts 8-bit integers into visual binary bi
 Simplified version  
 [Example prompt - Initial result](https://charlotte-lau-hk.github.io/bit-pattern-converter/simplified-example-initial-result.html)  
 [Example prompt - After follow-up prompt](https://charlotte-lau-hk.github.io/bit-pattern-converter/simplified-example-after-followup-prompt.html)  
-Reference: [Example prompt](https://edtools.hk/prompt-cards/example-1)
+Reference: [Example prompt](https://edtools.hk/guide/example-1)
 
 ![Verification](./screenshot.png)
 
